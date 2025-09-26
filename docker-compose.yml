@@ -35,12 +35,12 @@ services:
     restart: unless-stopped
     command: python -m assistant.enhanced_core --mode server --port 8080
 
-  # MCP Learning Server - Self-learning capabilities
+  # MCP Learning Server - Simplified self-learning capabilities
   mcp-learning:
     build:
       context: .
       dockerfile: Dockerfile.ai-engineer
-    container_name: quantum-mcp-learning
+    container_name: quantum-mcp-learning-simple
     ports:
       - "8084:8084"  # MCP Learning Server API
     volumes:
@@ -50,11 +50,39 @@ services:
       - learning-knowledge:/workspace/knowledge  # Shared knowledge storage
     environment:
       - PYTHONPATH=/workspace
-      - MCP_SERVER_NAME=learning-server
+      - MCP_SERVER_NAME=learning-server-simple
+      - FLASK_ENV=production
     networks:
       - quantum-network
     restart: unless-stopped
-    command: python -m assistant.mcp_learning_server --port 8084
+    command: python assistant/mcp_simple_server.py
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Simple Dashboard Service
+  simple-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-engineer
+    container_name: quantum-simple-dashboard
+    ports:
+      - "8085:8085"  # Simple dashboard port
+    volumes:
+      - .:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - PYTHONPATH=/workspace
+      - DISPLAY=${DISPLAY:-:0}
+      - MCP_SERVER_URL=http://mcp-learning:8084
+    depends_on:
+      - mcp-learning
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python tk_simple_dashboard.py
 
   # Patch Generator MCP Service
   patch-mcp:
