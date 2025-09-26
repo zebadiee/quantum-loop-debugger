@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 """
 Quantum Loop Debugger - AI Engineer Core
-Main orchestrator for AI-powered development workflows with MCP integration
+Main orchestrator for AI-powered development workflows with OpenRouter integration
 """
 
 import asyncio
@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 import argparse
 
-from .route_llm import RouteLLMClient
+from .openrouter_client import OpenRouterFree
 from .git_integration import GitManager
 from .tools.mcp_client import MCPClient
 
@@ -40,8 +40,8 @@ class AIEngineer:
         self.config = config or self._load_config()
         self.workspace_path = os.getenv('WORKSPACE_PATH', '/workspace')
         
-        # Initialize components
-        self.route_llm = RouteLLMClient(self.config.get('routellm', {}))
+        # Initialize components with OpenRouter Free Models
+        self.llm_client = OpenRouterFree(self.config.get('openrouter', {}))
         self.git_manager = GitManager(self.workspace_path, self.config.get('git', {}))
         
         # MCP clients for existing services
@@ -57,15 +57,15 @@ class AIEngineer:
         
         logger.info("🤖 AI Engineer initialized successfully")
         logger.info(f"📁 Workspace: {self.workspace_path}")
+        logger.info(f"🔄 LLM Client: OpenRouter Free Models")
 
     def _load_config(self) -> Dict:
         """Load configuration from environment and config files"""
         config = {
-            'routellm': {
-                'api_key': os.getenv('ROUTELLM_API_KEY'),
-                'cost_limit_per_hour': float(os.getenv('COST_LIMIT_PER_HOUR', '10.0')),
-                'default_model': os.getenv('DEFAULT_MODEL', 'gpt-4o-mini'),
-                'fallback_model': os.getenv('FALLBACK_MODEL', 'claude-3-haiku')
+            'openrouter': {
+                'api_key': os.getenv('OPENROUTER_API_KEY'),
+                'app_name': 'Quantum-Loop-Debugger',
+                'app_url': 'https://github.com/zebadiee/quantum-loop-debugger'
             },
             'git': {
                 'github_token': os.getenv('GITHUB_TOKEN'),
@@ -112,6 +112,10 @@ class AIEngineer:
                 return await self._handle_llm_query(request)
             elif request_type == 'system_health':
                 return await self._handle_system_health(request)
+            elif request_type == 'openrouter_status':
+                return await self._handle_openrouter_status(request)
+            elif request_type == 'force_model_rotation':
+                return await self._handle_force_model_rotation(request)
             else:
                 return await self._handle_generic_query(request)
                 
@@ -190,11 +194,15 @@ class AIEngineer:
                 {}
             )
             
+            # Get OpenRouter status
+            openrouter_health = await self.llm_client.health_check()
+            
             # Combine status information
             status = {
                 'success': True,
                 'dashboard': dashboard_response,
                 'auto_retry': retry_response,
+                'openrouter': openrouter_health,
                 'ai_engineer': {
                     'active_sessions': len(self.active_sessions),
                     'queue_size': self.task_queue.qsize(),
@@ -211,6 +219,51 @@ class AIEngineer:
             return {
                 'success': False,
                 'error': f"Status check failed: {str(e)}"
+            }
+
+    async def _handle_openrouter_status(self, request: Dict) -> Dict:
+        """Handle OpenRouter specific status requests"""
+        logger.info("🔄 Processing OpenRouter status request")
+        
+        try:
+            return {
+                'success': True,
+                'current_model': self.llm_client.current_model,
+                'available_models': self.llm_client.list_available_models(),
+                'usage_summary': self.llm_client.get_usage_summary(),
+                'rotation_history': self.llm_client.get_rotation_history(),
+                'health': await self.llm_client.health_check(),
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ OpenRouter status error: {e}")
+            return {
+                'success': False,
+                'error': f"OpenRouter status check failed: {str(e)}"
+            }
+
+    async def _handle_force_model_rotation(self, request: Dict) -> Dict:
+        """Handle forced model rotation requests"""
+        logger.info("🔄 Processing forced model rotation request")
+        
+        try:
+            old_model = self.llm_client.current_model
+            success = self.llm_client.force_model_rotation()
+            
+            return {
+                'success': success,
+                'old_model': old_model,
+                'new_model': self.llm_client.current_model,
+                'message': f"Model rotated from {old_model} to {self.llm_client.current_model}" if success else "No available models for rotation",
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Model rotation error: {e}")
+            return {
+                'success': False,
+                'error': f"Model rotation failed: {str(e)}"
             }
 
     async def _handle_run_tests(self, request: Dict) -> Dict:
@@ -301,7 +354,7 @@ class AIEngineer:
             }
 
     async def _handle_llm_query(self, request: Dict) -> Dict:
-        """Handle LLM queries through RouteLLM"""
+        """Handle LLM queries through OpenRouter Free Models"""
         logger.info("🧠 Processing LLM query request")
         
         query = request.get('query', '')
@@ -309,7 +362,7 @@ class AIEngineer:
         context = request.get('context', {})
         
         try:
-            response = await self.route_llm.query(
+            response = await self.llm_client.query(
                 query=query,
                 model=model,
                 context=context
@@ -318,6 +371,7 @@ class AIEngineer:
             return {
                 'success': True,
                 'response': response,
+                'model_used': self.llm_client.current_model,
                 'timestamp': datetime.now().isoformat()
             }
             
@@ -337,7 +391,7 @@ class AIEngineer:
                 'ai_engineer': 'healthy',
                 'mcp_services': {},
                 'git': await self.git_manager.health_check(),
-                'routellm': await self.route_llm.health_check(),
+                'openrouter': await self.llm_client.health_check(),
                 'workspace': os.path.exists(self.workspace_path),
                 'timestamp': datetime.now().isoformat()
             }
@@ -363,12 +417,12 @@ class AIEngineer:
             }
 
     async def _handle_generic_query(self, request: Dict) -> Dict:
-        """Handle generic queries by routing to appropriate LLM"""
+        """Handle generic queries by routing to OpenRouter"""
         logger.info("❓ Processing generic query")
         
         query = request.get('query', request.get('message', ''))
         
-        # Use RouteLLM for generic queries
+        # Use OpenRouter for generic queries
         return await self._handle_llm_query({
             'query': query,
             'context': {
@@ -429,6 +483,8 @@ class AIEngineer:
         print("  git <operation>         - Git operations")
         print("  query <question>        - Ask AI assistant")
         print("  health                  - System health check")
+        print("  openrouter              - OpenRouter status")
+        print("  rotate                  - Force model rotation")
         print("  quit                    - Exit")
         print("=" * 50)
         
@@ -475,6 +531,10 @@ class AIEngineer:
                     }
                 elif command == 'health':
                     request = {'type': 'system_health'}
+                elif command == 'openrouter':
+                    request = {'type': 'openrouter_status'}
+                elif command == 'rotate':
+                    request = {'type': 'force_model_rotation'}
                 else:
                     request = {
                         'type': 'llm_query',
@@ -493,10 +553,24 @@ class AIEngineer:
                     elif 'health' in response:
                         health = response['health']
                         print(f"🏥 System Health: {health.get('ai_engineer', 'unknown')}")
+                        if 'openrouter' in health:
+                            or_health = health['openrouter']
+                            print(f"🔄 OpenRouter: {or_health.get('status', 'unknown')}")
+                            print(f"   Current Model: {or_health.get('current_model', 'none')}")
+                            print(f"   Available Models: {or_health.get('available_models_count', 0)}/{or_health.get('total_models', 0)}")
                         for service, status in health.get('mcp_services', {}).items():
                             print(f"   {service}: {status}")
+                    elif 'current_model' in response:
+                        print(f"🔄 Current Model: {response['current_model']}")
+                        print(f"📊 Available Models: {len([m for m in response.get('available_models', {}).values() if m.get('available')])}")
+                        if response.get('rotation_history'):
+                            print("📈 Recent Rotations:")
+                            for rotation in response['rotation_history'][-3:]:
+                                print(f"   {rotation['timestamp']}: {rotation['from_model']} → {rotation['to_model']}")
                     elif 'response' in response:
                         print(f"💬 {response['response']}")
+                        if response.get('model_used'):
+                            print(f"🤖 Model: {response['model_used']}")
                     else:
                         print(f"📊 {json.dumps(response, indent=2)}")
                 else:

@@ -2,7 +2,7 @@
 version: '3.8'
 
 services:
-  # AI Engineer Service - Main orchestrator and CLI interface
+  # AI Engineer Service - Main orchestrator and CLI interface with OpenRouter
   ai-engineer:
     build:
       context: .
@@ -17,7 +17,7 @@ services:
       - ~/.ssh:/root/.ssh:ro  # SSH keys for Git operations
     environment:
       - PYTHONPATH=/workspace
-      - ROUTELLM_API_KEY=${ROUTELLM_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - WORKSPACE_PATH=/workspace
     depends_on:
@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
     command: python tk_patch_generator.py --mcp-mode --port 8081
 
-  # Dashboard MCP Service
+  # Dashboard MCP Service with OpenRouter monitoring
   dashboard-mcp:
     build:
       context: .
@@ -62,6 +62,7 @@ services:
       - PYTHONPATH=/workspace
       - MCP_SERVER_NAME=dashboard
       - FLASK_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
     networks:
       - quantum-network
     restart: unless-stopped
