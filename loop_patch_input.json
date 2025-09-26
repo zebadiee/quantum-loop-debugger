@@ -1,0 +1,158 @@
+
+{
+  "system_config": {
+    "name": "Quantum Loop Debugger",
+    "version": "1.0.0",
+    "description": "Self-healing code system with AI-powered patch generation",
+    "max_retries": 3,
+    "retry_delay": 2,
+    "patch_generator": "tk_patch_generator.py",
+    "test_script": "test_script.py",
+    "dashboard_port": 5000
+  },
+  "error_patterns": {
+    "import_error": {
+      "keywords": ["modulenotfounderror", "importerror", "no module named"],
+      "severity": "high",
+      "auto_fix": true,
+      "description": "Missing Python module or package"
+    },
+    "name_error": {
+      "keywords": ["nameerror", "name", "is not defined"],
+      "severity": "high",
+      "auto_fix": true,
+      "description": "Undefined variable or function name"
+    },
+    "type_error": {
+      "keywords": ["typeerror", "unsupported operand", "argument"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Type mismatch or invalid operation"
+    },
+    "attribute_error": {
+      "keywords": ["attributeerror", "has no attribute"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Missing object attribute or method"
+    },
+    "syntax_error": {
+      "keywords": ["syntaxerror", "invalid syntax"],
+      "severity": "critical",
+      "auto_fix": false,
+      "description": "Code syntax issues requiring manual review"
+    },
+    "file_not_found": {
+      "keywords": ["filenotfounderror", "no such file", "directory"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Missing file or directory"
+    },
+    "division_by_zero": {
+      "keywords": ["zerodivisionerror", "division by zero"],
+      "severity": "high",
+      "auto_fix": true,
+      "description": "Mathematical division by zero"
+    },
+    "index_error": {
+      "keywords": ["indexerror", "list index out of range"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Array or list index out of bounds"
+    },
+    "key_error": {
+      "keywords": ["keyerror", "key"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Dictionary key not found"
+    },
+    "value_error": {
+      "keywords": ["valueerror", "invalid literal"],
+      "severity": "medium",
+      "auto_fix": true,
+      "description": "Invalid value for operation or conversion"
+    }
+  },
+  "patch_templates": {
+    "import_fix": {
+      "type": "package_installation",
+      "method": "pip_install",
+      "fallback": "conditional_import"
+    },
+    "name_fix": {
+      "type": "variable_initialization",
+      "method": "default_values",
+      "fallback": "none_assignment"
+    },
+    "type_fix": {
+      "type": "type_conversion",
+      "method": "safe_casting",
+      "fallback": "type_checking"
+    },
+    "attribute_fix": {
+      "type": "attribute_creation",
+      "method": "dynamic_assignment",
+      "fallback": "hasattr_check"
+    },
+    "file_fix": {
+      "type": "file_creation",
+      "method": "default_content",
+      "fallback": "directory_creation"
+    },
+    "division_fix": {
+      "type": "mathematical_safety",
+      "method": "zero_check",
+      "fallback": "default_return"
+    },
+    "index_fix": {
+      "type": "bounds_checking",
+      "method": "safe_access",
+      "fallback": "default_value"
+    },
+    "key_fix": {
+      "type": "dictionary_safety",
+      "method": "get_method",
+      "fallback": "key_creation"
+    },
+    "value_fix": {
+      "type": "conversion_safety",
+      "method": "try_convert",
+      "fallback": "default_value"
+    }
+  },
+  "monitoring": {
+    "dashboard_enabled": true,
+    "real_time_logs": true,
+    "failure_tracking": true,
+    "patch_metrics": true,
+    "system_health": true
+  },
+  "ai_settings": {
+    "patch_generation": {
+      "enabled": true,
+      "model": "rule_based",
+      "confidence_threshold": 0.7,
+      "max_patch_size": 1000,
+      "safety_checks": true
+    },
+    "error_analysis": {
+      "pattern_matching": true,
+      "context_analysis": true,
+      "severity_assessment": true,
+      "fix_recommendation": true
+    }
+  },
+  "safety_features": {
+    "backup_creation": true,
+    "rollback_capability": false,
+    "manual_review_required": ["syntax_error"],
+    "max_auto_fixes": 10,
+    "timeout_seconds": 60
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "quantum_debugger.log",
+    "max_size_mb": 10,
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}
