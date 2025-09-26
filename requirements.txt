@@ -1,7 +1,6 @@
 
-
 # Quantum Loop Debugger - Python Dependencies
-# Self-healing code system requirements
+# Self-healing code system requirements with OpenRouter integration
 
 # Web Framework for Dashboard
 Flask==2.3.3
@@ -10,7 +9,7 @@ Werkzeug==2.3.7
 # HTTP Requests for API communication
 requests==2.31.0
 
-# Async HTTP client for MCP communication
+# Async HTTP client for MCP communication and OpenRouter
 aiohttp==3.9.1
 
 # JSON handling (built-in, but listed for completeness)
@@ -40,6 +39,9 @@ aiohttp==3.9.1
 # Async support
 asyncio
 
+# Path handling for usage tracking
+pathlib
+
 # Optional: Enhanced error tracking and logging
 # Uncomment if you want more advanced error handling
 # sentry-sdk==1.32.0
@@ -60,4 +62,3 @@ asyncio
 # black==23.7.0
 # isort==5.12.0
 # mypy==1.5.1
-
