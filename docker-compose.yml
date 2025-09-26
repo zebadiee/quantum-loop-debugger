@@ -2,12 +2,12 @@
 version: '3.8'
 
 services:
-  # AI Engineer Service - Main orchestrator and CLI interface with OpenRouter
+  # Enhanced AI Engineer Service - Main orchestrator with self-learning capabilities
   ai-engineer:
     build:
       context: .
       dockerfile: Dockerfile.ai-engineer
-    container_name: quantum-ai-engineer
+    container_name: quantum-ai-engineer-enhanced
     ports:
       - "8080:8080"  # CLI interface and API
     volumes:
@@ -15,19 +15,46 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock  # For Docker operations
       - ~/.gitconfig:/root/.gitconfig:ro  # Git configuration
       - ~/.ssh:/root/.ssh:ro  # SSH keys for Git operations
+      - learning-memory:/workspace/memory  # Persistent memory storage
+      - learning-feedback:/workspace/feedback  # Persistent feedback storage
+      - learning-knowledge:/workspace/knowledge  # Persistent knowledge storage
     environment:
       - PYTHONPATH=/workspace
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - WORKSPACE_PATH=/workspace
+      - LEARNING_ENABLED=true
+      - ADAPTATION_MODE=automatic
     depends_on:
       - patch-mcp
       - dashboard-mcp
       - auto-retry
+      - mcp-learning
     networks:
       - quantum-network
     restart: unless-stopped
-    command: python -m assistant.core
+    command: python -m assistant.enhanced_core --mode server --port 8080
+
+  # MCP Learning Server - Self-learning capabilities
+  mcp-learning:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-engineer
+    container_name: quantum-mcp-learning
+    ports:
+      - "8084:8084"  # MCP Learning Server API
+    volumes:
+      - .:/workspace
+      - learning-memory:/workspace/memory  # Shared memory storage
+      - learning-feedback:/workspace/feedback  # Shared feedback storage
+      - learning-knowledge:/workspace/knowledge  # Shared knowledge storage
+    environment:
+      - PYTHONPATH=/workspace
+      - MCP_SERVER_NAME=learning-server
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python -m assistant.mcp_learning_server --port 8084
 
   # Patch Generator MCP Service
   patch-mcp:
@@ -47,14 +74,14 @@ services:
     restart: unless-stopped
     command: python tk_patch_generator.py --mcp-mode --port 8081
 
-  # Dashboard MCP Service with OpenRouter monitoring
+  # Enhanced Dashboard MCP Service with Learning Metrics
   dashboard-mcp:
     build:
       context: .
       dockerfile: Dockerfile.dashboard-mcp
-    container_name: quantum-dashboard-mcp
+    container_name: quantum-dashboard-enhanced
     ports:
-      - "5000:5000"  # Web dashboard
+      - "5000:5000"  # Enhanced web dashboard
       - "8082:8082"  # MCP interface
     volumes:
       - .:/workspace
@@ -63,10 +90,13 @@ services:
       - MCP_SERVER_NAME=dashboard
       - FLASK_ENV=production
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+    depends_on:
+      - ai-engineer
+      - mcp-learning
     networks:
       - quantum-network
     restart: unless-stopped
-    command: python tk_dashboard.py --mcp-mode --port 8082
+    command: python tk_enhanced_dashboard.py
 
   # Auto-Retry Service
   auto-retry:
@@ -92,4 +122,10 @@ networks:
 
 volumes:
   workspace-data:
+    driver: local
+  learning-memory:
+    driver: local
+  learning-feedback:
+    driver: local
+  learning-knowledge:
     driver: local
