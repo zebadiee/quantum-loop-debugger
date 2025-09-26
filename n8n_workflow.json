@@ -1,0 +1,179 @@
+
+{
+  "name": "AI Engineer Self-Learning Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-engineer-events",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-capture",
+      "name": "Webhook - MCP Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "ai-engineer-mcp-events"
+    },
+    {
+      "parameters": {
+        "channel": "#ai-engineer-alerts",
+        "text": "🤖 AI Engineer Event Alert",
+        "attachments": [
+          {
+            "color": "good",
+            "title": "Self-Learning System Update",
+            "text": "={{$json.event_type}}: {{$json.message}}",
+            "fields": [
+              {
+                "title": "Timestamp",
+                "value": "={{$json.timestamp}}",
+                "short": true
+              },
+              {
+                "title": "Source",
+                "value": "={{$json.source || 'MCP Server'}}",
+                "short": true
+              },
+              {
+                "title": "Success Rate",
+                "value": "={{$json.success_rate || 'N/A'}}%",
+                "short": true
+              },
+              {
+                "title": "Memory Entries",
+                "value": "={{$json.memory_count || 'N/A'}}",
+                "short": true
+              }
+            ],
+            "footer": "AI Engineer Self-Learning System",
+            "ts": "={{Math.floor(Date.now() / 1000)}}"
+          }
+        ]
+      },
+      "id": "slack-alert",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        460,
+        200
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-credentials",
+          "name": "Slack API Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "ai_engineer_events",
+        "columns": "event_type, message, timestamp, source, success_rate, memory_count, feedback_count, raw_data",
+        "values": "={{$json.event_type}}, ={{$json.message}}, ={{$json.timestamp}}, ={{$json.source || 'MCP Server'}}, ={{$json.success_rate || null}}, ={{$json.memory_count || null}}, ={{$json.feedback_count || null}}, ={{JSON.stringify($json)}}"
+      },
+      "id": "database-log",
+      "name": "Database Logger",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 1,
+      "position": [
+        460,
+        400
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "postgres-credentials",
+          "name": "PostgreSQL Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Event processed successfully\",\n  \"timestamp\": \"{{new Date().toISOString()}}\",\n  \"processed_by\": \"n8n-workflow\"\n}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook - MCP Events": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Database Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Alert": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Database Logger": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "UTC",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ai-engineer-self-learning"
+  },
+  "id": "ai-engineer-workflow",
+  "tags": [
+    {
+      "id": "ai-engineer",
+      "name": "AI Engineer"
+    },
+    {
+      "id": "self-learning",
+      "name": "Self Learning"
+    },
+    {
+      "id": "mcp",
+      "name": "MCP"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-09-26T20:00:00.000Z",
+  "createdAt": "2025-09-26T20:00:00.000Z"
+}
