@@ -1,0 +1,95 @@
+
+version: '3.8'
+
+services:
+  # AI Engineer Service - Main orchestrator and CLI interface with OpenRouter
+  ai-engineer:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai-engineer
+    container_name: quantum-ai-engineer
+    ports:
+      - "8080:8080"  # CLI interface and API
+    volumes:
+      - .:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker operations
+      - ~/.gitconfig:/root/.gitconfig:ro  # Git configuration
+      - ~/.ssh:/root/.ssh:ro  # SSH keys for Git operations
+    environment:
+      - PYTHONPATH=/workspace
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - WORKSPACE_PATH=/workspace
+    depends_on:
+      - patch-mcp
+      - dashboard-mcp
+      - auto-retry
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python -m assistant.core
+
+  # Patch Generator MCP Service
+  patch-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.patch-mcp
+    container_name: quantum-patch-mcp
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/workspace
+    environment:
+      - PYTHONPATH=/workspace
+      - MCP_SERVER_NAME=patch-generator
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python tk_patch_generator.py --mcp-mode --port 8081
+
+  # Dashboard MCP Service with OpenRouter monitoring
+  dashboard-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard-mcp
+    container_name: quantum-dashboard-mcp
+    ports:
+      - "5000:5000"  # Web dashboard
+      - "8082:8082"  # MCP interface
+    volumes:
+      - .:/workspace
+    environment:
+      - PYTHONPATH=/workspace
+      - MCP_SERVER_NAME=dashboard
+      - FLASK_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python tk_dashboard.py --mcp-mode --port 8082
+
+  # Auto-Retry Service
+  auto-retry:
+    build:
+      context: .
+      dockerfile: Dockerfile.auto-retry
+    container_name: quantum-auto-retry
+    ports:
+      - "8083:8083"
+    volumes:
+      - .:/workspace
+    environment:
+      - PYTHONPATH=/workspace
+      - MCP_SERVER_NAME=auto-retry
+    networks:
+      - quantum-network
+    restart: unless-stopped
+    command: python tk_auto_retry.py --mcp-mode --port 8083
+
+networks:
+  quantum-network:
+    driver: bridge
+
+volumes:
+  workspace-data:
+    driver: local

@@ -270,8 +270,107 @@ class QuantumLoopDebugger:
         
         return False
 
+# MCP Server functionality
+class MCPAutoRetryServer:
+    def __init__(self, port=8083):
+        self.port = port
+        self.debugger = QuantumLoopDebugger()
+        
+    async def handle_method(self, method, params):
+        """Handle MCP method calls"""
+        if method == 'get_retry_status':
+            return {
+                'success': True,
+                'status': {
+                    'max_retries': self.debugger.max_retries,
+                    'retry_delay': self.debugger.retry_delay,
+                    'test_script': self.debugger.test_script,
+                    'patch_generator': self.debugger.patch_generator
+                },
+                'timestamp': datetime.now().isoformat()
+            }
+        elif method == 'run_quantum_loop':
+            try:
+                success = self.debugger.quantum_loop()
+                return {
+                    'success': success,
+                    'message': 'Quantum loop completed successfully' if success else 'Quantum loop failed',
+                    'timestamp': datetime.now().isoformat()
+                }
+            except Exception as e:
+                return {
+                    'success': False,
+                    'error': str(e)
+                }
+        elif method == 'run_test':
+            try:
+                result = self.debugger.run_test()
+                return {
+                    'success': True,
+                    'test_result': result,
+                    'timestamp': datetime.now().isoformat()
+                }
+            except Exception as e:
+                return {
+                    'success': False,
+                    'error': str(e)
+                }
+        elif method == 'health_check':
+            return {
+                'success': True,
+                'service': 'auto-retry',
+                'status': 'healthy',
+                'timestamp': datetime.now().isoformat()
+            }
+        else:
+            return {
+                'success': False,
+                'error': f'Unknown method: {method}'
+            }
+
+def start_mcp_server(port):
+    """Start MCP server"""
+    from flask import Flask, request, jsonify
+    
+    app = Flask(__name__)
+    server = MCPAutoRetryServer(port)
+    
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'healthy', 'service': 'auto-retry'})
+    
+    @app.route('/mcp/call', methods=['POST'])
+    async def mcp_call():
+        try:
+            data = request.get_json()
+            method = data.get('method')
+            params = data.get('params', {})
+            
+            result = await server.handle_method(method, params)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    print(f"🔌 Starting MCP Auto-Retry server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
+
 def main():
     """Main entry point"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Quantum Loop Debugger - Auto Retry')
+    parser.add_argument('--mcp-mode', action='store_true', help='Run as MCP server')
+    parser.add_argument('--port', type=int, default=8083, help='MCP server port')
+    
+    args = parser.parse_args()
+    
+    if args.mcp_mode:
+        start_mcp_server(args.port)
+        return 0
+    
     print("=" * 60)
     print("🔬 QUANTUM LOOP DEBUGGER - SELF-HEALING CODE SYSTEM")
     print("=" * 60)
