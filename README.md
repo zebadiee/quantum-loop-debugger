@@ -1,4 +1,5 @@
 
+
 # 🔬 Quantum Loop Debugger
 
 A revolutionary self-healing code system that automatically detects failures, generates intelligent patches using AI, and applies fixes in real-time. This system demonstrates advanced automated debugging capabilities with a beautiful web dashboard for monitoring.
@@ -12,15 +13,46 @@ A revolutionary self-healing code system that automatically detects failures, ge
 - **⚡ Fast Recovery**: Typically fixes issues within seconds
 - **🛡️ Safety Features**: Backup creation and rollback capabilities
 - **📈 Metrics Tracking**: Comprehensive logging and performance metrics
+- **🧠 AI Engineer Assistant**: Enhanced AI-powered development workflows with MCP integration
+- **🔀 Git Integration**: Automated commits, PRs, and branch management
+- **💰 Cost-Controlled LLM**: Safe RouteLLM wrapper with whitelisted models and cost limits
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Python 3.7 or higher
+- Docker and Docker Compose (for containerized deployment)
 - pip package manager
+- Git (for version control features)
 
-### Installation
+### Installation Options
+
+#### Option 1: Docker Compose (Recommended)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/zebadiee/quantum-loop-debugger.git
+   cd quantum-loop-debugger
+   ```
+
+2. **Set up environment variables**:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys and configuration
+   ```
+
+3. **Start all services**:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the services**:
+   - AI Engineer CLI: `docker exec -it quantum-ai-engineer python -m assistant.core`
+   - Web Dashboard: http://localhost:5000
+   - AI Engineer API: http://localhost:8080
+
+#### Option 2: Local Development
 
 1. **Clone the repository**:
    ```bash
@@ -33,13 +65,25 @@ A revolutionary self-healing code system that automatically detects failures, ge
    pip install -r requirements.txt
    ```
 
-3. **Start the dashboard** (optional but recommended):
+3. **Set up environment variables**:
+   ```bash
+   export ROUTELLM_API_KEY="your_routellm_api_key"
+   export GITHUB_TOKEN="your_github_token"
+   export WORKSPACE_PATH="$(pwd)"
+   ```
+
+4. **Start the dashboard** (optional but recommended):
    ```bash
    python tk_dashboard.py
    ```
    The dashboard will be available at `http://localhost:5000`
 
-4. **Run the self-healing system**:
+5. **Start the AI Engineer**:
+   ```bash
+   python -m assistant.core
+   ```
+
+6. **Run the self-healing system**:
    ```bash
    python tk_auto_retry.py
    ```
@@ -48,225 +92,240 @@ A revolutionary self-healing code system that automatically detects failures, ge
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Quantum Loop Debugger                    │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Dashboard     │  │  Main Loop      │  │ Patch Gen    │ │
-│  │ tk_dashboard.py │  │ tk_auto_retry.py│  │tk_patch_gen  │ │
-│  │                 │  │                 │  │    .py       │ │
-│  │ • Monitoring    │  │ • Failure Det.  │  │ • AI Analysis│ │
-│  │ • Metrics       │  │ • Retry Logic   │  │ • Code Gen   │ │
-│  │ • Logs          │  │ • Orchestration │  │ • Pattern    │ │
-│  │ • Status        │  │ • Integration   │  │   Matching   │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-│           │                     │                    │      │
-│           └─────────────────────┼────────────────────┘      │
-│                                 │                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │  Test Script    │  │  Config File    │  │ Requirements │ │
-│  │ test_script.py  │  │loop_patch_input │  │requirements  │ │
-│  │                 │  │     .json       │  │    .txt      │ │
-│  │ • Error Sim     │  │ • Settings      │  │ • Dependencies│ │
-│  │ • Scenarios     │  │ • Patterns      │  │ • Versions   │ │
-│  │ • Validation    │  │ • Templates     │  │ • Packages   │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│                    AI Engineer Service                      │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   RouteLLM      │  │ Git Integration │  │ MCP Client  │ │
+│  │   Wrapper       │  │    Manager      │  │   Tools     │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
 └─────────────────────────────────────────────────────────────┘
+                                │
+                    ┌───────────┼───────────┐
+                    │           │           │
+        ┌───────────▼──┐  ┌─────▼─────┐  ┌─▼──────────┐
+        │ Patch MCP    │  │Dashboard  │  │Auto-Retry  │
+        │ Generator    │  │    MCP    │  │    MCP     │
+        └──────────────┘  └───────────┘  └────────────┘
 ```
 
-## 📁 File Structure
+### Core Components
 
+1. **AI Engineer Service** (`assistant/core.py`):
+   - Main orchestrator for AI-powered development workflows
+   - Handles fix/patch requests, status checks, test execution
+   - Integrates with existing MCP services
+   - Provides interactive CLI interface
+
+2. **RouteLLM Wrapper** (`assistant/route_llm.py`):
+   - Safe LLM access with cost controls and model whitelisting
+   - Supports multiple models: GPT-4o, Claude-3, Gemini-1.5
+   - Hourly and daily cost limits
+   - Rate limiting and error handling
+
+3. **Git Integration** (`assistant/git_integration.py`):
+   - Automated Git operations (commits, pushes, PRs)
+   - Branch management and repository status
+   - GitHub API integration for pull requests
+   - Configurable auto-commit and auto-PR features
+
+4. **MCP Client Tools** (`assistant/tools/mcp_client.py`):
+   - Communication with existing MCP services
+   - Standardized JSON-RPC interface
+   - Health checks and capability discovery
+
+## 🎯 AI Engineer Usage
+
+### Interactive CLI Commands
+
+```bash
+# Start the AI Engineer CLI
+python -m assistant.core
+
+# Available commands:
+fix <error_description>     # Generate and apply patch
+status                      # Check system status  
+test [path]                # Run tests
+git <operation>            # Git operations
+query <question>           # Ask AI assistant
+health                     # System health check
+quit                       # Exit
 ```
-quantum-loop-debugger/
-├── tk_dashboard.py          # Web dashboard for monitoring
-├── tk_auto_retry.py         # Main orchestrator and retry logic
-├── tk_patch_generator.py    # AI-powered patch generation
-├── test_script.py           # Test scenarios and error simulation
-├── requirements.txt         # Python dependencies
-├── loop_patch_input.json    # Configuration and error patterns
-├── README.md               # This file
-└── generated_patch.py      # Auto-generated patches (created at runtime)
+
+### Example Workflows
+
+#### 1. Fix a Bug Automatically
+```bash
+🤖 AI Engineer > fix ImportError: No module named 'requests'
+✅ Success!
+📝 Generated patch for: requirements.txt
 ```
 
-## 🎯 Supported Error Types
+#### 2. Check System Status
+```bash
+🤖 AI Engineer > status
+✅ Success!
+🏥 System Health: healthy
+   patch-mcp: healthy
+   dashboard-mcp: healthy
+   auto-retry: healthy
+```
 
-The system can automatically detect and fix these error types:
+#### 3. Run Tests
+```bash
+🤖 AI Engineer > test
+✅ Success!
+🧪 Tests passed: 15/15
+```
 
-| Error Type | Auto-Fix | Description |
-|------------|----------|-------------|
-| `ImportError` | ✅ | Missing Python modules/packages |
-| `NameError` | ✅ | Undefined variables or functions |
-| `TypeError` | ✅ | Type mismatches and invalid operations |
-| `AttributeError` | ✅ | Missing object attributes/methods |
-| `FileNotFoundError` | ✅ | Missing files or directories |
-| `ZeroDivisionError` | ✅ | Mathematical division by zero |
-| `IndexError` | ✅ | List/array index out of bounds |
-| `KeyError` | ✅ | Dictionary key not found |
-| `ValueError` | ✅ | Invalid values for operations |
-| `SyntaxError` | ⚠️ | Code syntax issues (manual review) |
+#### 4. Git Operations
+```bash
+🤖 AI Engineer > git status
+✅ Success!
+🔀 Current branch: ai-engineer-feature
+   Modified files: 2
+   Untracked files: 1
+```
 
 ## 🔧 Configuration
 
-The system behavior can be customized through `loop_patch_input.json`:
-
-```json
-{
-  "system_config": {
-    "max_retries": 3,
-    "retry_delay": 2,
-    "dashboard_port": 5000
-  },
-  "ai_settings": {
-    "patch_generation": {
-      "enabled": true,
-      "confidence_threshold": 0.7,
-      "safety_checks": true
-    }
-  }
-}
-```
-
-## 🖥️ Dashboard Features
-
-The web dashboard provides:
-
-- **Real-time System Status**: Current state and health metrics
-- **Live Logs**: Streaming log entries with color coding
-- **Failure Tracking**: History of detected issues and fixes
-- **Patch Metrics**: Statistics on applied patches
-- **System Uptime**: Continuous operation monitoring
-
-## 🧪 Testing the System
-
-The included test script simulates various failure scenarios:
+### Environment Variables
 
 ```bash
-# Run a single test
-python test_script.py
+# RouteLLM Configuration
+ROUTELLM_API_KEY=your_api_key_here
+COST_LIMIT_PER_HOUR=10.0
+COST_LIMIT_PER_DAY=50.0
+DEFAULT_MODEL=gpt-4o-mini
+FALLBACK_MODEL=claude-3-haiku
 
-# The system will randomly select from:
-# - Import errors (90% failure rate)
-# - Name errors (80% failure rate)
-# - Type errors (70% failure rate)
-# - File not found (60% failure rate)
-# - Division by zero (50% failure rate)
-# - Index errors (40% failure rate)
-# - Key errors (30% failure rate)
-# - Attribute errors (20% failure rate)
-# - Value errors (10% failure rate)
-# - Success case (0% failure rate)
+# Git Configuration  
+GITHUB_TOKEN=your_github_token
+AUTO_COMMIT=true
+AUTO_PR=false
+
+# MCP Configuration
+MCP_TIMEOUT=30
+MCP_RETRY_ATTEMPTS=3
+
+# Workspace
+WORKSPACE_PATH=/workspace
 ```
 
-## 🔄 How It Works
+### Docker Compose Services
 
-1. **Failure Detection**: The main loop continuously monitors test execution
-2. **Error Analysis**: AI analyzes the failure context and error patterns
-3. **Patch Generation**: Intelligent patches are generated based on error type
-4. **Patch Application**: Generated fixes are applied automatically
-5. **Verification**: The system retests to confirm the fix worked
-6. **Monitoring**: All activities are logged and displayed on the dashboard
-
-## 📊 Example Output
-
-```
-🔬 QUANTUM LOOP DEBUGGER - SELF-HEALING CODE SYSTEM
-============================================================
-📁 Config: loop_patch_input.json
-🔄 Max retries: 3
-⏱️  Retry delay: 2s
---------------------------------------------------
-🌀 Starting Quantum Loop Debugger...
-🔄 Entering self-healing loop...
-
-🔄 Attempt 1/3
-🧪 Running test: test_script.py
-❌ Test failed on attempt 1
-🤖 Attempting self-healing...
-🤖 Generating patch with AI...
-✅ Patch generated successfully
-🔧 Applying patch...
-✅ Patch applied successfully
-⏱️  Waiting 2s before retry...
-
-🔄 Attempt 2/3
-🧪 Running test: test_script.py
-✅ Test passed! System is healthy.
-
-🎉 SUCCESS: System is now healthy!
-```
+- **ai-engineer**: Main AI Engineer service (port 8080)
+- **patch-mcp**: Patch generator MCP service (port 8081)
+- **dashboard-mcp**: Dashboard MCP service (ports 5000, 8082)
+- **auto-retry**: Auto-retry MCP service (port 8083)
 
 ## 🛡️ Safety Features
 
-- **Backup Creation**: Automatic backups before applying patches
-- **Timeout Protection**: Prevents infinite loops with configurable timeouts
-- **Manual Review**: Critical errors (like syntax errors) require human review
-- **Rollback Capability**: Can revert changes if patches cause issues
-- **Rate Limiting**: Prevents excessive patch applications
+### Cost Controls
+- Hourly and daily spending limits for LLM usage
+- Whitelisted models only (no access to expensive models without explicit approval)
+- Real-time cost tracking and budget enforcement
 
-## 🔮 Advanced Features
+### Git Safety
+- Automatic backups before applying patches
+- Branch-based workflow (never commits directly to main)
+- Pull request creation for code review
+- Rollback capabilities
 
-### Custom Error Patterns
-Add new error patterns to `loop_patch_input.json`:
+### Error Handling
+- Comprehensive logging and error tracking
+- Graceful degradation when services are unavailable
+- Health checks for all components
+- Timeout protection for long-running operations
 
-```json
-{
-  "error_patterns": {
-    "custom_error": {
-      "keywords": ["custom", "error", "pattern"],
-      "severity": "medium",
-      "auto_fix": true,
-      "description": "Custom error description"
+## 📊 Monitoring and Logging
+
+### Web Dashboard
+Access the web dashboard at `http://localhost:5000` to monitor:
+- System health and status
+- Recent patch applications
+- Error rates and recovery metrics
+- Cost tracking and usage statistics
+
+### Log Files
+- AI Engineer logs: `/workspace/logs/ai_engineer.log`
+- MCP service logs: Individual service containers
+- Git operation logs: Included in AI Engineer logs
+
+## 🔄 MCP Integration
+
+The AI Engineer integrates with existing MCP services:
+
+1. **Patch MCP** (`tk_patch_generator.py`):
+   - Generates intelligent patches for code failures
+   - Supports 10+ error types
+   - AI-powered error analysis
+
+2. **Dashboard MCP** (`tk_dashboard.py`):
+   - Provides system monitoring and metrics
+   - Web interface for status visualization
+   - Real-time health checks
+
+3. **Auto-Retry MCP** (`tk_auto_retry.py`):
+   - Automatic failure detection and recovery
+   - Configurable retry policies
+   - Integration with patch generation
+
+## 🚀 Advanced Features
+
+### Custom Model Configuration
+```python
+# Add custom models to route_llm.py
+WHITELISTED_MODELS = {
+    'custom-model': {
+        'input_cost': 0.001, 
+        'output_cost': 0.002, 
+        'max_tokens': 50000
     }
-  }
 }
 ```
 
-### Patch Templates
-Create custom patch templates for specific error types:
-
+### Git Workflow Customization
 ```python
-def generate_custom_fix(self, failure_context, details):
-    """Generate patch for custom errors"""
-    patch_code = '''
-    # Custom patch code here
-    print("Custom fix applied")
-    '''
-    return patch_code
+# Configure in git_integration.py
+git_config = {
+    'auto_commit': True,
+    'auto_pr': False,
+    'default_branch': 'main',
+    'commit_message_template': 'AI-Fix: {error_type}'
+}
 ```
 
-## 📈 Performance Metrics
-
-- **Average Fix Time**: ~2-5 seconds per error
-- **Success Rate**: 85-95% for supported error types
-- **Memory Usage**: <50MB typical operation
-- **CPU Usage**: <5% during normal operation
+### MCP Service Extensions
+Add new MCP services by:
+1. Creating a new service in `assistant/tools/`
+2. Adding the service to `docker-compose.yml`
+3. Registering it in `assistant/core.py`
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test thoroughly
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- Inspired by self-healing systems in distributed computing
-- Built with modern Python best practices
-- Uses Flask for the beautiful web dashboard
-- Implements AI-driven patch generation techniques
+- **Issues**: [GitHub Issues](https://github.com/zebadiee/quantum-loop-debugger/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/zebadiee/quantum-loop-debugger/discussions)
+- **Documentation**: [Wiki](https://github.com/zebadiee/quantum-loop-debugger/wiki)
 
-## 🔗 Links
+## 🎉 Acknowledgments
 
-- **Repository**: https://github.com/zebadiee/quantum-loop-debugger
-- **Issues**: https://github.com/zebadiee/quantum-loop-debugger/issues
-- **Documentation**: https://github.com/zebadiee/quantum-loop-debugger/wiki
+- Built with ❤️ for the developer community
+- Powered by advanced AI and machine learning technologies
+- Inspired by the need for intelligent, self-healing code systems
 
 ---
 
-**Made with ❤️ by the Quantum Loop Debugger Team**
+**🔬 Quantum Loop Debugger - Where AI meets intelligent code healing!**
 
-*"Healing code, one loop at a time"* 🔬✨

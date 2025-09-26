@@ -1,4 +1,5 @@
 
+
 # Quantum Loop Debugger - Python Dependencies
 # Self-healing code system requirements
 
@@ -8,6 +9,9 @@ Werkzeug==2.3.7
 
 # HTTP Requests for API communication
 requests==2.31.0
+
+# Async HTTP client for MCP communication
+aiohttp==3.9.1
 
 # JSON handling (built-in, but listed for completeness)
 # json - built-in module
@@ -33,6 +37,9 @@ requests==2.31.0
 # File operations (built-in)
 # shutil - built-in module
 
+# Async support
+asyncio
+
 # Optional: Enhanced error tracking and logging
 # Uncomment if you want more advanced error handling
 # sentry-sdk==1.32.0
@@ -53,3 +60,4 @@ requests==2.31.0
 # black==23.7.0
 # isort==5.12.0
 # mypy==1.5.1
+
