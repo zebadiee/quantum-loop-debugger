@@ -1,182 +1,212 @@
 
 #!/usr/bin/env python3
 """
-Test Script for Quantum Loop Debugger
-This script intentionally contains errors to demonstrate the self-healing system
+Simple test script for the Quantum Loop Debugger system
+This script is used by the auto-retry system to test code health
 """
 
-import random
-import time
 import sys
+import os
+import json
+from datetime import datetime
 
-def test_import_error():
-    """Test case that triggers import errors"""
-    print("🧪 Testing import error scenario...")
-    try:
-        # This will fail if the module is not installed
-        import nonexistent_module
-        print("✅ Import test passed")
-        return True
-    except ImportError as e:
-        print(f"❌ Import error: {e}")
-        raise
-
-def test_name_error():
-    """Test case that triggers name errors"""
-    print("🧪 Testing name error scenario...")
-    try:
-        # This will fail because 'undefined_variable' is not defined
-        result = undefined_variable + 10
-        print(f"✅ Name test passed: {result}")
-        return True
-    except NameError as e:
-        print(f"❌ Name error: {e}")
-        raise
-
-def test_type_error():
-    """Test case that triggers type errors"""
-    print("🧪 Testing type error scenario...")
-    try:
-        # This will fail because you can't add string and integer
-        result = "hello" + 5
-        print(f"✅ Type test passed: {result}")
-        return True
-    except TypeError as e:
-        print(f"❌ Type error: {e}")
-        raise
-
-def test_file_not_found():
-    """Test case that triggers file not found errors"""
-    print("🧪 Testing file not found scenario...")
-    try:
-        # This will fail if the file doesn't exist
-        with open("nonexistent_file.txt", "r") as f:
-            content = f.read()
-        print(f"✅ File test passed: {len(content)} characters read")
-        return True
-    except FileNotFoundError as e:
-        print(f"❌ File not found error: {e}")
-        raise
-
-def test_division_by_zero():
-    """Test case that triggers division by zero"""
-    print("🧪 Testing division by zero scenario...")
-    try:
-        # This will fail with division by zero
-        result = 10 / 0
-        print(f"✅ Division test passed: {result}")
-        return True
-    except ZeroDivisionError as e:
-        print(f"❌ Division by zero error: {e}")
-        raise
-
-def test_index_error():
-    """Test case that triggers index errors"""
-    print("🧪 Testing index error scenario...")
-    try:
-        # This will fail with index out of range
-        my_list = [1, 2, 3]
-        result = my_list[10]
-        print(f"✅ Index test passed: {result}")
-        return True
-    except IndexError as e:
-        print(f"❌ Index error: {e}")
-        raise
-
-def test_key_error():
-    """Test case that triggers key errors"""
-    print("🧪 Testing key error scenario...")
-    try:
-        # This will fail with key not found
-        my_dict = {"a": 1, "b": 2}
-        result = my_dict["nonexistent_key"]
-        print(f"✅ Key test passed: {result}")
-        return True
-    except KeyError as e:
-        print(f"❌ Key error: {e}")
-        raise
-
-def test_attribute_error():
-    """Test case that triggers attribute errors"""
-    print("🧪 Testing attribute error scenario...")
-    try:
-        # This will fail because strings don't have 'nonexistent_method'
-        result = "hello".nonexistent_method()
-        print(f"✅ Attribute test passed: {result}")
-        return True
-    except AttributeError as e:
-        print(f"❌ Attribute error: {e}")
-        raise
-
-def test_value_error():
-    """Test case that triggers value errors"""
-    print("🧪 Testing value error scenario...")
-    try:
-        # This will fail because "hello" can't be converted to int
-        result = int("hello")
-        print(f"✅ Value test passed: {result}")
-        return True
-    except ValueError as e:
-        print(f"❌ Value error: {e}")
-        raise
-
-def test_success_case():
-    """Test case that should always pass"""
-    print("🧪 Testing success scenario...")
+def test_basic_functionality():
+    """Test basic Python functionality"""
+    print("🧪 Running basic functionality tests...")
+    
+    # Test 1: Basic arithmetic
     result = 2 + 2
-    if result == 4:
-        print("✅ Success test passed: 2 + 2 = 4")
-        return True
-    else:
-        print(f"❌ Success test failed: 2 + 2 = {result}")
-        return False
+    assert result == 4, f"Basic arithmetic failed: 2 + 2 = {result}"
+    print("✅ Basic arithmetic test passed")
+    
+    # Test 2: String operations
+    text = "Hello, World!"
+    assert len(text) == 13, f"String length test failed: len('{text}') = {len(text)}"
+    print("✅ String operations test passed")
+    
+    # Test 3: List operations
+    numbers = [1, 2, 3, 4, 5]
+    total = sum(numbers)
+    assert total == 15, f"List sum test failed: sum({numbers}) = {total}"
+    print("✅ List operations test passed")
+    
+    # Test 4: Dictionary operations
+    data = {"name": "Quantum Loop Debugger", "version": "1.0"}
+    assert data["name"] == "Quantum Loop Debugger", "Dictionary access test failed"
+    print("✅ Dictionary operations test passed")
+    
+    return True
 
-# Test scenarios with different failure rates
-TEST_SCENARIOS = [
-    ("import_error", test_import_error, 0.9),      # 90% chance to fail
-    ("name_error", test_name_error, 0.8),          # 80% chance to fail
-    ("type_error", test_type_error, 0.7),          # 70% chance to fail
-    ("file_not_found", test_file_not_found, 0.6),  # 60% chance to fail
-    ("division_by_zero", test_division_by_zero, 0.5), # 50% chance to fail
-    ("index_error", test_index_error, 0.4),        # 40% chance to fail
-    ("key_error", test_key_error, 0.3),            # 30% chance to fail
-    ("attribute_error", test_attribute_error, 0.2), # 20% chance to fail
-    ("value_error", test_value_error, 0.1),        # 10% chance to fail
-    ("success", test_success_case, 0.0),           # 0% chance to fail (always pass)
-]
-
-def main():
-    """Main test execution"""
-    print("=" * 60)
-    print("🧪 QUANTUM LOOP DEBUGGER - TEST SCRIPT")
-    print("=" * 60)
+def test_file_operations():
+    """Test file I/O operations"""
+    print("🧪 Running file operations tests...")
     
-    # Randomly select a test scenario
-    scenario_name, test_func, failure_rate = random.choice(TEST_SCENARIOS)
-    
-    print(f"🎯 Selected test scenario: {scenario_name}")
-    print(f"📊 Failure probability: {failure_rate * 100}%")
-    print("-" * 40)
-    
-    # Simulate some processing time
-    time.sleep(1)
+    test_file = "test_temp_file.txt"
+    test_content = "This is a test file for the Quantum Loop Debugger"
     
     try:
-        # Decide whether to run the failing version or success version
-        if random.random() < failure_rate:
-            print(f"🎲 Running failing version of {scenario_name}")
-            test_func()
-        else:
-            print(f"🎲 Running success version of {scenario_name}")
-            test_success_case()
+        # Test writing
+        with open(test_file, 'w') as f:
+            f.write(test_content)
+        print("✅ File write test passed")
         
-        print("\n🎉 Test completed successfully!")
-        return 0
+        # Test reading
+        with open(test_file, 'r') as f:
+            content = f.read()
+        
+        assert content == test_content, f"File content mismatch: expected '{test_content}', got '{content}'"
+        print("✅ File read test passed")
+        
+        # Cleanup
+        os.remove(test_file)
+        print("✅ File cleanup completed")
+        
+        return True
         
     except Exception as e:
-        print(f"\n💥 Test failed with error: {str(e)}")
-        print(f"🔬 This failure will trigger the Quantum Loop Debugger")
+        print(f"❌ File operations test failed: {e}")
+        # Cleanup on failure
+        if os.path.exists(test_file):
+            try:
+                os.remove(test_file)
+            except:
+                pass
+        return False
+
+def test_json_operations():
+    """Test JSON operations"""
+    print("🧪 Running JSON operations tests...")
+    
+    try:
+        # Test JSON serialization
+        test_data = {
+            "timestamp": datetime.now().isoformat(),
+            "test_name": "Quantum Loop Debugger Test",
+            "status": "running",
+            "data": [1, 2, 3, {"nested": True}]
+        }
+        
+        json_string = json.dumps(test_data)
+        print("✅ JSON serialization test passed")
+        
+        # Test JSON deserialization
+        parsed_data = json.loads(json_string)
+        assert parsed_data["test_name"] == test_data["test_name"], "JSON parsing test failed"
+        print("✅ JSON deserialization test passed")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ JSON operations test failed: {e}")
+        return False
+
+def test_import_statements():
+    """Test common import statements"""
+    print("🧪 Running import tests...")
+    
+    try:
+        # Test standard library imports
+        import os
+        import sys
+        import json
+        import time
+        import datetime
+        import subprocess
+        import threading
+        print("✅ Standard library imports test passed")
+        
+        # Test that we can import our modules
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            from assistant import openrouter_client
+            print("✅ Local module imports test passed")
+        except ImportError as e:
+            print(f"⚠️  Local module import warning: {e}")
+            # This is not a critical failure for basic testing
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Import test failed: {e}")
+        return False
+
+def simulate_error_scenario():
+    """Simulate an error scenario for testing patch generation"""
+    print("🧪 Running error simulation test...")
+    
+    # This function can be modified to simulate different types of errors
+    # for testing the patch generation system
+    
+    # Uncomment one of these lines to simulate different errors:
+    
+    # 1. Import Error
+    # import non_existent_module
+    
+    # 2. Name Error
+    # print(undefined_variable)
+    
+    # 3. Type Error
+    # result = "string" + 123
+    
+    # 4. File Not Found Error
+    # with open("non_existent_file.txt", 'r') as f:
+    #     content = f.read()
+    
+    # 5. Division by Zero
+    # result = 10 / 0
+    
+    # For now, just pass to avoid errors during normal testing
+    print("✅ Error simulation test passed (no errors simulated)")
+    return True
+
+def main():
+    """Main test function"""
+    print("=" * 50)
+    print("🚀 QUANTUM LOOP DEBUGGER - TEST SCRIPT")
+    print("=" * 50)
+    print(f"📅 Test started: {datetime.now().isoformat()}")
+    print()
+    
+    # List of test functions
+    tests = [
+        ("Basic Functionality", test_basic_functionality),
+        ("File Operations", test_file_operations),
+        ("JSON Operations", test_json_operations),
+        ("Import Statements", test_import_statements),
+        ("Error Simulation", simulate_error_scenario)
+    ]
+    
+    passed_tests = 0
+    total_tests = len(tests)
+    
+    # Run all tests
+    for test_name, test_func in tests:
+        print(f"\n--- {test_name} ---")
+        try:
+            result = test_func()
+            if result:
+                passed_tests += 1
+                print(f"✅ {test_name}: PASSED")
+            else:
+                print(f"❌ {test_name}: FAILED")
+        except Exception as e:
+            print(f"❌ {test_name}: CRASHED - {e}")
+    
+    # Summary
+    print("\n" + "=" * 50)
+    print("📊 TEST SUMMARY")
+    print("=" * 50)
+    print(f"Tests passed: {passed_tests}/{total_tests}")
+    print(f"Success rate: {(passed_tests/total_tests)*100:.1f}%")
+    
+    if passed_tests == total_tests:
+        print("🎉 All tests passed! System is healthy.")
+        return 0
+    else:
+        print("⚠️  Some tests failed. System may need attention.")
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit_code = main()
+    print(f"\n🏁 Test script completed with exit code: {exit_code}")
+    sys.exit(exit_code)

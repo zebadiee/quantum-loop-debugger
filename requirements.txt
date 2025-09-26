@@ -12,6 +12,12 @@ requests==2.31.0
 # Async HTTP client for MCP communication and OpenRouter
 aiohttp==3.9.1
 
+# Async support
+asyncio
+
+# Path handling for usage tracking
+pathlib
+
 # JSON handling (built-in, but listed for completeness)
 # json - built-in module
 
@@ -35,12 +41,6 @@ aiohttp==3.9.1
 
 # File operations (built-in)
 # shutil - built-in module
-
-# Async support
-asyncio
-
-# Path handling for usage tracking
-pathlib
 
 # Optional: Enhanced error tracking and logging
 # Uncomment if you want more advanced error handling

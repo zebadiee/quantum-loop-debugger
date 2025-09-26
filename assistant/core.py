@@ -582,6 +582,50 @@ class AIEngineer:
             except Exception as e:
                 print(f"❌ CLI Error: {e}")
 
+    async def start_server(self, port: int = 8080):
+        """Start HTTP server for API requests"""
+        from aiohttp import web, web_request
+        
+        async def handle_request(request: web_request.Request):
+            """Handle API requests"""
+            try:
+                data = await request.json()
+                response = await self.handle_request(data)
+                return web.json_response(response)
+            except Exception as e:
+                logger.error(f"❌ API request error: {e}")
+                return web.json_response({
+                    'success': False,
+                    'error': str(e)
+                }, status=500)
+        
+        async def health_check(request: web_request.Request):
+            """Health check endpoint"""
+            return web.json_response({
+                'status': 'healthy',
+                'service': 'ai-engineer',
+                'timestamp': datetime.now().isoformat()
+            })
+        
+        app = web.Application()
+        app.router.add_post('/api/request', handle_request)
+        app.router.add_get('/health', health_check)
+        
+        logger.info(f"🌐 Starting AI Engineer server on port {port}")
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, '0.0.0.0', port)
+        await site.start()
+        
+        # Keep server running
+        try:
+            while True:
+                await asyncio.sleep(1)
+        except KeyboardInterrupt:
+            logger.info("🛑 Server shutdown requested")
+        finally:
+            await runner.cleanup()
+
 async def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(description='Quantum Loop Debugger - AI Engineer')
@@ -606,9 +650,7 @@ async def main():
     if args.mode == 'cli':
         await ai_engineer.start_cli_interface()
     else:
-        # TODO: Implement server mode with FastAPI
-        logger.info(f"🌐 Starting server mode on port {args.port}")
-        await ai_engineer.start_cli_interface()  # Fallback to CLI for now
+        await ai_engineer.start_server(args.port)
 
 if __name__ == "__main__":
     asyncio.run(main())
