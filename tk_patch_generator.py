@@ -583,20 +583,107 @@ print("🔧 Generic error patch applied successfully")
         
         return True
 
+# MCP Server functionality
+class MCPPatchServer:
+    def __init__(self, port=8081):
+        self.port = port
+        self.generator = QuantumPatchGenerator()
+        
+    async def handle_method(self, method, params):
+        """Handle MCP method calls"""
+        if method == 'generate_patch':
+            failure_context = params.get('failure_context', {})
+            try:
+                success = self.generator.generate_patch(failure_context)
+                
+                # Read generated patch
+                patch_file = "generated_patch.py"
+                patch_content = ""
+                if os.path.exists(patch_file):
+                    with open(patch_file, 'r') as f:
+                        patch_content = f.read()
+                
+                return {
+                    'success': success,
+                    'patch': {
+                        'file_path': patch_file,
+                        'patch_content': patch_content,
+                        'generated_at': datetime.now().isoformat()
+                    }
+                }
+            except Exception as e:
+                return {
+                    'success': False,
+                    'error': str(e)
+                }
+        elif method == 'health_check':
+            return {
+                'success': True,
+                'service': 'patch-generator',
+                'status': 'healthy',
+                'timestamp': datetime.now().isoformat()
+            }
+        else:
+            return {
+                'success': False,
+                'error': f'Unknown method: {method}'
+            }
+
+def start_mcp_server(port):
+    """Start MCP server"""
+    from flask import Flask, request, jsonify
+    
+    app = Flask(__name__)
+    server = MCPPatchServer(port)
+    
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'healthy', 'service': 'patch-generator'})
+    
+    @app.route('/mcp/call', methods=['POST'])
+    async def mcp_call():
+        try:
+            data = request.get_json()
+            method = data.get('method')
+            params = data.get('params', {})
+            
+            result = await server.handle_method(method, params)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+    
+    print(f"🔌 Starting MCP Patch Generator server on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=False)
+
 def main():
     """Main entry point"""
-    if len(sys.argv) != 2:
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Quantum Patch Generator')
+    parser.add_argument('context_file', nargs='?', help='Failure context file')
+    parser.add_argument('--mcp-mode', action='store_true', help='Run as MCP server')
+    parser.add_argument('--port', type=int, default=8081, help='MCP server port')
+    
+    args = parser.parse_args()
+    
+    if args.mcp_mode:
+        start_mcp_server(args.port)
+        return 0
+    
+    if not args.context_file:
         print("Usage: python tk_patch_generator.py <failure_context_file>")
+        print("   or: python tk_patch_generator.py --mcp-mode [--port PORT]")
         return 1
     
-    context_file = sys.argv[1]
-    
-    if not os.path.exists(context_file):
-        print(f"❌ Context file not found: {context_file}")
+    if not os.path.exists(args.context_file):
+        print(f"❌ Context file not found: {args.context_file}")
         return 1
     
     try:
-        with open(context_file, 'r') as f:
+        with open(args.context_file, 'r') as f:
             failure_context = json.load(f)
         
         generator = QuantumPatchGenerator()

@@ -1,272 +1,363 @@
 
-# 🔬 Quantum Loop Debugger
+# 🚀 Quantum Loop Debugger - AI Engineer System
 
-A revolutionary self-healing code system that automatically detects failures, generates intelligent patches using AI, and applies fixes in real-time. This system demonstrates advanced automated debugging capabilities with a beautiful web dashboard for monitoring.
+A self-healing AI development system with OpenRouter free model rotation, automated patch generation, and comprehensive monitoring.
 
 ## 🌟 Features
 
-- **🤖 AI-Powered Patch Generation**: Intelligent error analysis and automatic patch creation
-- **🔄 Self-Healing Loop**: Continuous monitoring and automatic failure recovery
-- **📊 Real-Time Dashboard**: Beautiful web interface for system monitoring
-- **🎯 Multi-Error Support**: Handles 10+ different types of Python errors
-- **⚡ Fast Recovery**: Typically fixes issues within seconds
-- **🛡️ Safety Features**: Backup creation and rollback capabilities
-- **📈 Metrics Tracking**: Comprehensive logging and performance metrics
+### 🤖 AI Engineer Core
+- **OpenRouter Free Models Integration**: Automatic rotation between 8 free models
+- **Smart Failover**: Intelligent quota management and model switching
+- **Docker Service Integration**: Containerized microservices architecture
+- **CLI Interface**: Interactive command-line interface for development
+- **MCP Services Integration**: Patch generation, dashboard, and auto-retry services
+
+### 🔄 OpenRouter Free Models
+- **Meta Llama 3.2 3B & 1B Instruct**: High-performance instruction following
+- **Microsoft Phi-3 Mini & Medium**: Efficient reasoning models
+- **Google Gemma 2 9B IT**: Advanced instruction tuning
+- **HuggingFace Zephyr 7B Beta**: Conversational AI capabilities
+- **OpenChat 7B**: Optimized chat performance
+- **Gryphe MythoMist 7B**: Creative and narrative tasks
+
+### 🛡️ Zero-Cost Guarantee
+- **Strict Model Whitelisting**: Only free models are used
+- **Usage Tracking**: Persistent monitoring in `usage.json`
+- **Quota Management**: Automatic rotation when limits reached
+- **Cost Protection**: No paid model fallbacks
+
+### 📊 Observability
+- **Real-time Dashboard**: Web-based monitoring interface
+- **Usage Analytics**: Detailed model usage statistics
+- **Rotation History**: Track model switches and reasons
+- **Health Monitoring**: System and service health checks
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Docker and Docker Compose
+- OpenRouter API key (free tier)
+- Git repository access
 
-- Python 3.7 or higher
-- pip package manager
-
-### Installation
+### Environment Setup
 
 1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/zebadiee/quantum-loop-debugger.git
-   cd quantum-loop-debugger
-   ```
+```bash
+git clone https://github.com/zebadiee/quantum-loop-debugger.git
+cd quantum-loop-debugger
+```
 
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. **Set environment variables**:
+```bash
+# Create .env file
+cat > .env << EOF
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+GITHUB_TOKEN=your_github_token_here
+WORKSPACE_PATH=/workspace
+EOF
+```
 
-3. **Start the dashboard** (optional but recommended):
-   ```bash
-   python tk_dashboard.py
-   ```
-   The dashboard will be available at `http://localhost:5000`
+3. **Launch the system**:
+```bash
+docker-compose up -d
+```
 
-4. **Run the self-healing system**:
-   ```bash
-   python tk_auto_retry.py
-   ```
+### 🎯 Access Points
 
-## 🏗️ System Architecture
+- **AI Engineer CLI**: `docker exec -it quantum-ai-engineer python -m assistant.core`
+- **Web Dashboard**: http://localhost:5000
+- **API Endpoints**: http://localhost:8080
+
+## 💻 Usage Examples
+
+### CLI Commands
+
+```bash
+# Check system status
+🤖 AI Engineer > status
+
+# Generate and apply patch
+🤖 AI Engineer > fix "ImportError: No module named 'requests'"
+
+# Run tests
+🤖 AI Engineer > test
+
+# Query AI assistant
+🤖 AI Engineer > query "How do I optimize this code?"
+
+# Check OpenRouter status
+🤖 AI Engineer > openrouter
+
+# Force model rotation
+🤖 AI Engineer > rotate
+
+# Git operations
+🤖 AI Engineer > git status
+```
+
+### API Usage
+
+```python
+import requests
+
+# Get system status
+response = requests.post('http://localhost:8080/api/request', json={
+    'type': 'status_check'
+})
+
+# Generate patch
+response = requests.post('http://localhost:8080/api/request', json={
+    'type': 'fix_patch',
+    'failure_context': {
+        'error': 'ImportError: No module named requests',
+        'file': 'main.py'
+    },
+    'auto_apply': True
+})
+
+# Query OpenRouter models
+response = requests.post('http://localhost:8080/api/request', json={
+    'type': 'llm_query',
+    'query': 'Explain this error and suggest a fix'
+})
+```
+
+## 🏗️ Architecture
+
+### Services Overview
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   AI Engineer   │    │  Patch Generator │    │    Dashboard    │
+│   (Port 8080)   │◄──►│   (Port 8081)   │    │   (Port 5000)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   Auto-Retry    │
+                    │   (Port 8083)   │
+                    └─────────────────┘
+```
+
+### OpenRouter Integration
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Quantum Loop Debugger                    │
+│                    OpenRouter Free Models                   │
 ├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │   Dashboard     │  │  Main Loop      │  │ Patch Gen    │ │
-│  │ tk_dashboard.py │  │ tk_auto_retry.py│  │tk_patch_gen  │ │
-│  │                 │  │                 │  │    .py       │ │
-│  │ • Monitoring    │  │ • Failure Det.  │  │ • AI Analysis│ │
-│  │ • Metrics       │  │ • Retry Logic   │  │ • Code Gen   │ │
-│  │ • Logs          │  │ • Orchestration │  │ • Pattern    │ │
-│  │ • Status        │  │ • Integration   │  │   Matching   │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
-│           │                     │                    │      │
-│           └─────────────────────┼────────────────────┘      │
-│                                 │                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────┐ │
-│  │  Test Script    │  │  Config File    │  │ Requirements │ │
-│  │ test_script.py  │  │loop_patch_input │  │requirements  │ │
-│  │                 │  │     .json       │  │    .txt      │ │
-│  │ • Error Sim     │  │ • Settings      │  │ • Dependencies│ │
-│  │ • Scenarios     │  │ • Patterns      │  │ • Versions   │ │
-│  │ • Validation    │  │ • Templates     │  │ • Packages   │ │
-│  └─────────────────┘  └─────────────────┘  └──────────────┘ │
+│ • Meta Llama 3.2 3B/1B Instruct (200 req/day, 20 req/hr)  │
+│ • Microsoft Phi-3 Mini/Medium (200 req/day, 20 req/hr)    │
+│ • Google Gemma 2 9B IT (200 req/day, 20 req/hr)           │
+│ • HuggingFace Zephyr 7B (200 req/day, 20 req/hr)          │
+│ • OpenChat 7B (200 req/day, 20 req/hr)                    │
+│ • Gryphe MythoMist 7B (200 req/day, 20 req/hr)            │
 └─────────────────────────────────────────────────────────────┘
+                              │
+                    ┌─────────────────┐
+                    │ Smart Rotation  │
+                    │ & Quota Mgmt    │
+                    └─────────────────┘
 ```
-
-## 📁 File Structure
-
-```
-quantum-loop-debugger/
-├── tk_dashboard.py          # Web dashboard for monitoring
-├── tk_auto_retry.py         # Main orchestrator and retry logic
-├── tk_patch_generator.py    # AI-powered patch generation
-├── test_script.py           # Test scenarios and error simulation
-├── requirements.txt         # Python dependencies
-├── loop_patch_input.json    # Configuration and error patterns
-├── README.md               # This file
-└── generated_patch.py      # Auto-generated patches (created at runtime)
-```
-
-## 🎯 Supported Error Types
-
-The system can automatically detect and fix these error types:
-
-| Error Type | Auto-Fix | Description |
-|------------|----------|-------------|
-| `ImportError` | ✅ | Missing Python modules/packages |
-| `NameError` | ✅ | Undefined variables or functions |
-| `TypeError` | ✅ | Type mismatches and invalid operations |
-| `AttributeError` | ✅ | Missing object attributes/methods |
-| `FileNotFoundError` | ✅ | Missing files or directories |
-| `ZeroDivisionError` | ✅ | Mathematical division by zero |
-| `IndexError` | ✅ | List/array index out of bounds |
-| `KeyError` | ✅ | Dictionary key not found |
-| `ValueError` | ✅ | Invalid values for operations |
-| `SyntaxError` | ⚠️ | Code syntax issues (manual review) |
 
 ## 🔧 Configuration
 
-The system behavior can be customized through `loop_patch_input.json`:
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENROUTER_API_KEY` | OpenRouter API key | Required |
+| `GITHUB_TOKEN` | GitHub access token | Optional |
+| `WORKSPACE_PATH` | Working directory | `/workspace` |
+| `AUTO_COMMIT` | Auto-commit patches | `true` |
+| `AUTO_PR` | Auto-create PRs | `false` |
+| `MCP_TIMEOUT` | MCP request timeout | `30` |
+| `MCP_RETRY_ATTEMPTS` | MCP retry attempts | `3` |
+
+### Configuration File
+
+Create `config/ai_engineer.json`:
 
 ```json
 {
-  "system_config": {
-    "max_retries": 3,
-    "retry_delay": 2,
-    "dashboard_port": 5000
+  "openrouter": {
+    "api_key": "your_key_here",
+    "app_name": "Quantum-Loop-Debugger",
+    "app_url": "https://github.com/zebadiee/quantum-loop-debugger"
   },
-  "ai_settings": {
-    "patch_generation": {
-      "enabled": true,
-      "confidence_threshold": 0.7,
-      "safety_checks": true
-    }
+  "git": {
+    "auto_commit": true,
+    "auto_pr": false
+  },
+  "mcp": {
+    "timeout": 30,
+    "retry_attempts": 3
   }
 }
 ```
 
-## 🖥️ Dashboard Features
+## 📊 Monitoring & Observability
 
-The web dashboard provides:
+### Dashboard Features
+- **Real-time Status**: System health and active operations
+- **Model Usage**: Current model, availability, and usage statistics
+- **Rotation History**: Track model switches with timestamps
+- **System Logs**: Comprehensive logging with filtering
+- **Health Checks**: Service availability monitoring
 
-- **Real-time System Status**: Current state and health metrics
-- **Live Logs**: Streaming log entries with color coding
-- **Failure Tracking**: History of detected issues and fixes
-- **Patch Metrics**: Statistics on applied patches
-- **System Uptime**: Continuous operation monitoring
+### Usage Tracking
+The system maintains detailed usage statistics in `/workspace/logs/openrouter_usage.json`:
 
-## 🧪 Testing the System
+```json
+{
+  "models": {
+    "meta-llama/llama-3.2-3b-instruct:free": {
+      "requests": ["2024-01-01T10:00:00Z", "..."],
+      "total_requests": 45,
+      "last_used": "2024-01-01T15:30:00Z"
+    }
+  },
+  "rotation_history": [
+    {
+      "timestamp": "2024-01-01T12:00:00Z",
+      "from_model": "meta-llama/llama-3.2-3b-instruct:free",
+      "to_model": "microsoft/phi-3-mini-128k-instruct:free",
+      "reason": "quota_rotation"
+    }
+  ]
+}
+```
 
-The included test script simulates various failure scenarios:
+## 🛠️ Development
+
+### Local Development
 
 ```bash
-# Run a single test
+# Install dependencies
+pip install -r requirements.txt
+
+# Run individual services
+python assistant/core.py --mode cli
+python tk_dashboard.py --port 5000
+python tk_patch_generator.py
+python tk_auto_retry.py
+```
+
+### Testing
+
+```bash
+# Run the test script
 python test_script.py
 
-# The system will randomly select from:
-# - Import errors (90% failure rate)
-# - Name errors (80% failure rate)
-# - Type errors (70% failure rate)
-# - File not found (60% failure rate)
-# - Division by zero (50% failure rate)
-# - Index errors (40% failure rate)
-# - Key errors (30% failure rate)
-# - Attribute errors (20% failure rate)
-# - Value errors (10% failure rate)
-# - Success case (0% failure rate)
+# Test with AI Engineer
+🤖 AI Engineer > test test_script.py
 ```
 
-## 🔄 How It Works
+### Adding New Models
 
-1. **Failure Detection**: The main loop continuously monitors test execution
-2. **Error Analysis**: AI analyzes the failure context and error patterns
-3. **Patch Generation**: Intelligent patches are generated based on error type
-4. **Patch Application**: Generated fixes are applied automatically
-5. **Verification**: The system retests to confirm the fix worked
-6. **Monitoring**: All activities are logged and displayed on the dashboard
+To add new free OpenRouter models, update `assistant/openrouter_client.py`:
 
-## 📊 Example Output
-
-```
-🔬 QUANTUM LOOP DEBUGGER - SELF-HEALING CODE SYSTEM
-============================================================
-📁 Config: loop_patch_input.json
-🔄 Max retries: 3
-⏱️  Retry delay: 2s
---------------------------------------------------
-🌀 Starting Quantum Loop Debugger...
-🔄 Entering self-healing loop...
-
-🔄 Attempt 1/3
-🧪 Running test: test_script.py
-❌ Test failed on attempt 1
-🤖 Attempting self-healing...
-🤖 Generating patch with AI...
-✅ Patch generated successfully
-🔧 Applying patch...
-✅ Patch applied successfully
-⏱️  Waiting 2s before retry...
-
-🔄 Attempt 2/3
-🧪 Running test: test_script.py
-✅ Test passed! System is healthy.
-
-🎉 SUCCESS: System is now healthy!
-```
-
-## 🛡️ Safety Features
-
-- **Backup Creation**: Automatic backups before applying patches
-- **Timeout Protection**: Prevents infinite loops with configurable timeouts
-- **Manual Review**: Critical errors (like syntax errors) require human review
-- **Rollback Capability**: Can revert changes if patches cause issues
-- **Rate Limiting**: Prevents excessive patch applications
-
-## 🔮 Advanced Features
-
-### Custom Error Patterns
-Add new error patterns to `loop_patch_input.json`:
-
-```json
-{
-  "error_patterns": {
-    "custom_error": {
-      "keywords": ["custom", "error", "pattern"],
-      "severity": "medium",
-      "auto_fix": true,
-      "description": "Custom error description"
+```python
+FREE_MODELS = {
+    'new-model-id:free': {
+        'name': 'New Model Name',
+        'context_length': 8192,
+        'daily_limit': 200,
+        'hourly_limit': 20,
+        'provider': 'Provider Name',
+        'capabilities': ['chat', 'instruct']
     }
-  }
 }
 ```
 
-### Patch Templates
-Create custom patch templates for specific error types:
+## 🔒 Security & Best Practices
 
-```python
-def generate_custom_fix(self, failure_context, details):
-    """Generate patch for custom errors"""
-    patch_code = '''
-    # Custom patch code here
-    print("Custom fix applied")
-    '''
-    return patch_code
+### API Key Management
+- Store API keys in environment variables
+- Use Docker secrets for production
+- Never commit keys to version control
+
+### Model Safety
+- Only whitelisted free models are used
+- No automatic fallback to paid models
+- Usage limits are strictly enforced
+
+### Git Integration
+- Automatic commit messages include context
+- PR creation requires explicit approval
+- Branch protection recommended
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+**OpenRouter API Key Issues**:
+```bash
+# Check if key is set
+echo $OPENROUTER_API_KEY
+
+# Test API access
+curl -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+     https://openrouter.ai/api/v1/models
 ```
 
-## 📈 Performance Metrics
+**Service Connection Issues**:
+```bash
+# Check service health
+docker-compose ps
+docker-compose logs ai-engineer
+```
 
-- **Average Fix Time**: ~2-5 seconds per error
-- **Success Rate**: 85-95% for supported error types
-- **Memory Usage**: <50MB typical operation
-- **CPU Usage**: <5% during normal operation
+**Model Quota Exhausted**:
+- Check dashboard for model availability
+- Wait for quota reset (hourly/daily)
+- Force model rotation if needed
+
+### Logs and Debugging
+
+```bash
+# View service logs
+docker-compose logs -f ai-engineer
+docker-compose logs -f dashboard-mcp
+
+# Access container for debugging
+docker exec -it quantum-ai-engineer bash
+
+# Check usage statistics
+cat /workspace/logs/openrouter_usage.json
+```
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 📝 License
+### Development Guidelines
+- Follow Python PEP 8 style guide
+- Add docstrings to all functions
+- Update README for new features
+- Test with multiple OpenRouter models
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
-- Inspired by self-healing systems in distributed computing
-- Built with modern Python best practices
-- Uses Flask for the beautiful web dashboard
-- Implements AI-driven patch generation techniques
+- OpenRouter for providing free model access
+- Meta, Microsoft, Google, and other model providers
+- Docker and containerization ecosystem
+- Open source AI/ML community
 
-## 🔗 Links
+## 📞 Support
 
-- **Repository**: https://github.com/zebadiee/quantum-loop-debugger
-- **Issues**: https://github.com/zebadiee/quantum-loop-debugger/issues
-- **Documentation**: https://github.com/zebadiee/quantum-loop-debugger/wiki
+- **Issues**: GitHub Issues
+- **Discussions**: GitHub Discussions
+- **Documentation**: This README and inline comments
 
 ---
 
-**Made with ❤️ by the Quantum Loop Debugger Team**
-
-*"Healing code, one loop at a time"* 🔬✨
+**🚀 Ready to revolutionize your development workflow with AI-powered self-healing code!**
